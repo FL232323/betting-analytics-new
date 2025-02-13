@@ -61,6 +61,8 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  bets     Bet[]
+  betLegs  BetLeg[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
@@ -77,4 +79,49 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map(name: "verification_tokens")
+}
+
+model Bet {
+  id              String   @id @default(cuid())
+  userId          String
+  datePlace       DateTime
+  status          String
+  league          String
+  match           String
+  betType         String
+  market          String
+  price           Float
+  wager           Float
+  winnings        Float
+  payout          Float
+  potentialPayout Float
+  betSlipId       String
+  createdAt       DateTime @default(now())
+  
+  user    User     @relation(fields: [userId], references: [id])
+  legs    BetLeg[]
+
+  @@index([userId])
+  @@map(name: "bets")
+}
+
+model BetLeg {
+  id        String   @id @default(cuid())
+  betId     String
+  userId    String
+  status    String
+  league    String
+  match     String
+  betType   String
+  market    String
+  price     Float
+  result    String
+  createdAt DateTime @default(now())
+
+  bet  Bet  @relation(fields: [betId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([betId])
+  @@index([userId])
+  @@map(name: "bet_legs")
 }
